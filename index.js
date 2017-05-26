@@ -1,5 +1,5 @@
 import React, { Component, PropTypes } from 'react';
-import { View, StyleSheet, Image, TouchableOpacity, Platform } from 'react-native';
+import { View, StyleSheet, Image, TouchableOpacity, Platform, ViewPropTypes } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Video from 'react-native-video'; // eslint-disable-line
 
@@ -110,17 +110,21 @@ export default class VideoPlayer extends Component {
     this.onPlayPress = this.onPlayPress.bind(this);
     this.onMutePress = this.onMutePress.bind(this);
     this.showControls = this.showControls.bind(this);
-    this.onToggleFullScreen = this.onToggleFullScreen.bind(this);
     this.onSeekBarLayout = this.onSeekBarLayout.bind(this);
     this.onSeekGrant = this.onSeekGrant.bind(this);
     this.onSeekRelease = this.onSeekRelease.bind(this);
     this.onSeek = this.onSeek.bind(this);
+    this.onToggleFullScreen = this.onToggleFullScreen.bind(this);
   }
 
   componentDidMount() {
     if (this.props.autoplay) {
       this.hideControls();
     }
+  }
+
+  onToggleFullScreen() {
+    this.player.presentFullscreenPlayer();
   }
 
   onLayout(event) {
@@ -189,10 +193,6 @@ export default class VideoPlayer extends Component {
       isMuted: !this.state.isMuted,
     });
     this.showControls();
-  }
-
-  onToggleFullScreen() {
-    this.player.presentFullscreenPlayer();
   }
 
   onSeekBarLayout({ nativeEvent }) {
@@ -370,7 +370,7 @@ export default class VideoPlayer extends Component {
             />
           </TouchableOpacity>
         )}
-        {(Platform.OS === 'android') ? null : (
+        {(!this.props.allowFullScreen || (Platform.OS === 'android')) ? null : (
           <TouchableOpacity onPress={this.onToggleFullScreen} style={customStyles.controlButton}>
             <Icon
               style={[styles.extraControl, customStyles.controlIcon]}
@@ -458,26 +458,27 @@ VideoPlayer.propTypes = {
   autoplay: PropTypes.bool,
   defaultMuted: PropTypes.bool,
   muted: PropTypes.bool,
-  style: View.propTypes.style,
+  allowFullScreen: PropTypes.bool,
+  style: ViewPropTypes.style,
   controlsTimeout: PropTypes.number,
   loop: PropTypes.bool,
   resizeMode: Video.propTypes.resizeMode,
   hideControlsOnStart: PropTypes.bool,
   endWithThumbnail: PropTypes.bool,
   customStyles: PropTypes.shape({
-    wrapper: View.propTypes.style,
+    wrapper: ViewPropTypes.style,
     video: Video.propTypes.style,
-    controls: View.propTypes.style,
+    controls: ViewPropTypes.style,
     playControl: TouchableOpacity.propTypes.style,
     controlButton: TouchableOpacity.propTypes.style,
     controlIcon: Icon.propTypes.style,
     playIcon: Icon.propTypes.style,
-    seekBar: View.propTypes.style,
-    seekBarFullWidth: View.propTypes.style,
-    seekBarProgress: View.propTypes.style,
-    seekBarKnob: View.propTypes.style,
-    seekBarKnobSeeking: View.propTypes.style,
-    seekBarBackground: View.propTypes.style,
+    seekBar: ViewPropTypes.style,
+    seekBarFullWidth: ViewPropTypes.style,
+    seekBarProgress: ViewPropTypes.style,
+    seekBarKnob: ViewPropTypes.style,
+    seekBarKnobSeeking: ViewPropTypes.style,
+    seekBarBackground: ViewPropTypes.style,
     thumbnail: Image.propTypes.style,
     playButton: TouchableOpacity.propTypes.style,
     playArrow: Icon.propTypes.style,
@@ -495,4 +496,5 @@ VideoPlayer.defaultProps = {
   loop: false,
   resizeMode: 'contain',
   customStyles: {},
+  allowFullScreen: true,
 };
